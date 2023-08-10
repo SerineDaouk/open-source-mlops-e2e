@@ -1,0 +1,4 @@
+[core]
+    remote = my_dvc_remote_bucket
+['remote "my_dvc_remote_bucket"']
+    url = s3://sed-ml-data
