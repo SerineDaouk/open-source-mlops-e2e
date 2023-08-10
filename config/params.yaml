@@ -1,0 +1,5 @@
+
+notebook:
+  reports_dir: '../reports/'
+  rawdata_dir: '../data/raw'
+  models_dir: '../models/'
