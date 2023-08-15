@@ -1,0 +1,143 @@
+schema: '2.0'
+stages:
+  data_split:
+    cmd: make dataSplit
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: dbe1cfcf546b65bc2246f85aa14c5a21.dir
+      size: 466888
+      nfiles: 2
+    - path: src/stages/data/data_split.py
+      hash: md5
+      md5: 31ef4307b99d2d74633bc5092e75f423
+      size: 1998
+    params:
+      params.yaml:
+        base:
+          project: bank_customer_churn
+          raw_data_dir: data/raw
+          countries:
+          - France
+          - Spain
+          feat_cols:
+          - CreditScore
+          - Age
+          - Tenure
+          - Balance
+          - NumOfProducts
+          - HasCrCard
+          - IsActiveMember
+          - EstimatedSalary
+          targ_col: Exited
+          random_state: 42
+        data_split:
+          test_size: 0.2
+          processed_data_dir: data/processed
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 5eb53e64f37fee38949d2fd115254a43.dir
+      size: 722283
+      nfiles: 4
+  train:
+    cmd: make train
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 5eb53e64f37fee38949d2fd115254a43.dir
+      size: 722283
+      nfiles: 4
+    - path: src/stages/train/train.py
+      hash: md5
+      md5: a6a3dc31163d4791674ce6cc4adbecc3
+      size: 2493
+    params:
+      params.yaml:
+        base:
+          project: bank_customer_churn
+          raw_data_dir: data/raw
+          countries:
+          - France
+          - Spain
+          feat_cols:
+          - CreditScore
+          - Age
+          - Tenure
+          - Balance
+          - NumOfProducts
+          - HasCrCard
+          - IsActiveMember
+          - EstimatedSalary
+          targ_col: Exited
+          random_state: 42
+        train:
+          model_type: xgboost
+          model_dir: models
+          model_path: models/clf-model.joblib
+          params:
+            n_estimators: 110
+            max_depth: 20
+    outs:
+    - path: models/clf-model.joblib
+      hash: md5
+      md5: c5ba0cbaa39371c2eb03f5151a5919d4
+      size: 918901
+  eval:
+    cmd: make eval
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 5eb53e64f37fee38949d2fd115254a43.dir
+      size: 722283
+      nfiles: 4
+    - path: models/clf-model.joblib
+      hash: md5
+      md5: c5ba0cbaa39371c2eb03f5151a5919d4
+      size: 918901
+    - path: src/stages/evaluation/eval.py
+      hash: md5
+      md5: 2463f9aef29c80d29f91270ab37c817f
+      size: 2885
+    params:
+      params.yaml:
+        base:
+          project: bank_customer_churn
+          raw_data_dir: data/raw
+          countries:
+          - France
+          - Spain
+          feat_cols:
+          - CreditScore
+          - Age
+          - Tenure
+          - Balance
+          - NumOfProducts
+          - HasCrCard
+          - IsActiveMember
+          - EstimatedSalary
+          targ_col: Exited
+          random_state: 42
+        data_split:
+          test_size: 0.2
+          processed_data_dir: data/processed
+        train:
+          model_type: xgboost
+          model_dir: models
+          model_path: models/clf-model.joblib
+          params:
+            n_estimators: 110
+            max_depth: 20
+    outs:
+    - path: reports/feat_imp.csv
+      hash: md5
+      md5: 20cabb8f9125d5baf6bbe8151613d4ec
+      size: 185
+    - path: reports/figures/cm.png
+      hash: md5
+      md5: 01191d731718478883b13bda15ae9a6c
+      size: 10459
+    - path: reports/metrics.json
+      hash: md5
+      md5: 26612e7229b6d036a3d062333e419626
+      size: 67
